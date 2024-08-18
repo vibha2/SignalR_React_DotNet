@@ -34,11 +34,13 @@ function App() {
         console.log("message=> ", `${message}`);
 
         console.log("msg: ", newMessage);
+        setMessages((messages) => [...messages, { user, message }]);
       });
 
-      conn.on("ReceiveSpecificMessage", (username, msg) => {
-        console.log("msgs: ", msg);
-        setMessages((messages) => [...messages, { username, msg }]);
+      conn.on("ReceiveSpecificMessage", (user, message) => {
+        console.log("i am from ReceiveSpecificMessage");
+        console.log("msgs: ", message);
+        setMessages((messages) => [...messages, { user, message }]);
       });
 
       await conn.start();
@@ -47,6 +49,14 @@ function App() {
       setConnection(conn);
     } catch (e) {
       console.log("err=> ", e);
+    }
+  };
+
+  const sendMessage = async (message) => {
+    try {
+      await conn.invoke("SendMessage", message);
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -62,7 +72,7 @@ function App() {
           {!conn ? (
             <WaitingRoom joinChatRoom={joinChatRoom}></WaitingRoom>
           ) : (
-            <ChatRoom messages={messages}></ChatRoom>
+            <ChatRoom messages={messages} sendMessage={sendMessage}></ChatRoom>
           )}
         </Container>
       </main>
